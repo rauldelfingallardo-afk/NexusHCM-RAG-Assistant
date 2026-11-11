@@ -1,0 +1,19 @@
+# OCI & Infrastructure
+oci>=2.112.0
+python-dotenv>=1.0.0
+
+# PDF & Text Processing
+pymupdf>=1.23.0
+langchain>=0.3.0
+langchain-community>=0.3.0,<0.4.0
+
+# Oracle OCI Generative AI Integration (Para usar Cohere)
+langchain-oci>=0.1.0
+langchain-oracledb>=1.0.0
+
+# Fallback LLM Provider (Por si falla OCI)
+langchain-openai>=0.2.0
+
+# Vector Database & UI
+faiss-cpu>=1.7.4
+streamlit>=1.40.0
