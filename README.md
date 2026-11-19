@@ -15,7 +15,7 @@ This project centralizes Human Capital information on **Oracle Cloud Infrastruct
 
 The application is deployed and running 24/7 on an **Oracle Cloud Compute (Ubuntu)** instance secured with **Nginx** and **Let's Encrypt SSL**:
 
-👉 **[Access NexusHCM Live Assistant](https://https://nexushcm.144.22.231.88.nip.io)**
+👉 **[Access NexusHCM Live Assistant](https://nexushcm.144.22.231.88.nip.io)**
 
 ---
 
