@@ -19,6 +19,8 @@ The application is deployed and running 24/7 on an **Oracle Cloud Compute (Ubunt
 
 ---
 
+
+
 ## 🏗️ System Architecture
 
 The project implements an end-to-end cloud-native data pipeline combining **Oracle Cloud Infrastructure (OCI)** services with **LangChain**:
