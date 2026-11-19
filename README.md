@@ -1,32 +1,47 @@
 # NexusHCM - RAG Assistant 🤖💼
 
-**NexusHCM RAG Assistant** is an intelligent virtual assistant powered by a **RAG (Retrieval-Augmented Generation)** architecture. Its primary purpose is to resolve employee inquiries by accurately analyzing internal Human Resources policies and corporate handbooks hosted in PDF format.
+[![Live Demo](https://shields.io)](https://nip.io)
+[![Python](https://shields.io)](https://python.org)
+[![Oracle Cloud](https://shields.io)](https://oracle.com)
+[![Streamlit](https://shields.io)](https://streamlit.io)
 
-This project is designed to centralize Human Capital information, ensuring consistent, secure, and contextualized answers while significantly reducing the administrative workload of HR teams.
+**NexusHCM RAG Assistant** is an intelligent, bilingual (English/Spanish) virtual assistant powered by a **RAG (Retrieval-Augmented Generation)** architecture. Its primary purpose is to resolve employee inquiries by accurately analyzing internal Human Resources policies and corporate handbooks hosted in PDF format.
+
+This project centralizes Human Capital information on **Oracle Cloud Infrastructure (OCI)**, ensuring consistent, secure, and source-cited answers while significantly reducing the administrative workload of HR teams.
+
+---
+
+## 🌐 Live Deployment
+
+The application is deployed and running 24/7 on an **Oracle Cloud Compute (Ubuntu)** instance secured with **Nginx** and **Let's Encrypt SSL**:
+
+👉 **[Access NexusHCM Live Assistant](https://https://nexushcm.144.22.231.88.nip.io)**
 
 ---
 
 ## 🏗️ System Architecture
 
-The project implements an optimized data pipeline combining the robustness of **Oracle Cloud Infrastructure (OCI)** with the flexibility of **LangChain**:
+The project implements an end-to-end cloud-native data pipeline combining **Oracle Cloud Infrastructure (OCI)** services with **LangChain**:
 
-1. **Storage (OCI Object Storage):** Official HR documents (.pdf) are securely managed within an OCI Bucket.
-2. **Ingestion Pipeline (ETL & LangChain):** A Python script connects to the OCI bucket, downloads the files, and utilizes `PyMuPDF` for high-fidelity text extraction, segmenting it into text chunks using smart splitting strategies.
-3. **Vector Processing (Embeddings):** Text chunks are transformed into high-dimensional vectors and indexed into a vector database for rapid semantic search.
-4. **RAG Orchestration (LangChain + LLM):** The AI engine retrieves the most relevant context matching the user's query and generates a precise answer using a Large Language Model (LLM).
-5. **User Interface (Streamlit):** An intuitive chat frontend that enables seamless, real-time interactions for end-users.
+1. **Storage (OCI Object Storage):** Official HR policy documents (`.pdf`) are securely stored and versioned within a private OCI Bucket.
+2. **Ingestion Pipeline (ETL & PyMuPDF):** A Python pipeline connects via the OCI SDK to download documents, extracts text with `PyMuPDF`, and splits content into semantic chunks (`RecursiveCharacterTextSplitter`).
+3. **Vector Processing (OCI GenAI Embeddings + FAISS):** Text chunks are transformed into dense vector representations using **Cohere Embed v4 (`cohere.embed-v4.0`)** on OCI Generative AI and indexed locally in **FAISS** for low-latency semantic retrieval.
+4. **RAG Orchestration (LangChain + Cohere Command-A):** The retrieval chain fetches the top relevant policy fragments and generates grounded, context-aware answers using **Cohere Command-A (`cohere.command-a-03-2025`)**, citing the exact source PDFs.
+5. **Bilingual Frontend (Streamlit):** An interactive chat interface featuring real-time **English/Spanish** switching, one-click FAQ prompts, and an on-demand **OCI Bucket Sync** button.
 
 ---
 
-## 🛠️ Tech Stack & Tools
+## 🛠️ Tech Stack & Cloud Services
 
-*   **Core Language:** Python 3.11+
-*   **Cloud Infrastructure:** Oracle Cloud Infrastructure (OCI) - Object Storage & IAM.
-*   **AI Orchestration:** LangChain (RecursiveCharacterTextSplitter, RetrievalQA).
-*   **PDF Processing:** PyMuPDF (Fitz).
-*   **Graphical Interface:** Streamlit.
-*   **Security:** Python-dotenv for environment variables management.
-*   **Version Control:** Git & GitHub.
+* **Core Language:** Python 3.11+
+* **Cloud Infrastructure (OCI):**
+  * **OCI Generative AI:** `cohere.command-a-03-2025` (LLM) & `cohere.embed-v4.0` (Embeddings).
+  * **OCI Object Storage & IAM:** Secure document repository and API key authentication.
+  * **OCI Compute & VCN:** Ubuntu 22.04 VM, Virtual Cloud Network, and Security Lists.
+* **AI & Vector Search:** LangChain, `langchain-oci`, FAISS (`faiss-cpu`).
+* **PDF Processing:** PyMuPDF (`fitz`).
+* **Frontend & Web Server:** Streamlit, Nginx (Reverse Proxy), Certbot (HTTPS/TLS via `nip.io`).
+* **Quality Assurance:** Pytest (Unit & integration tests with mocking).
 
 ---
 
@@ -34,25 +49,28 @@ The project implements an optimized data pipeline combining the robustness of **
 
 ```text
 NexusHCM-RAG-Assistant/
-├── .github/workflows/    # Automated deployment pipelines (CI/CD)
-├── data/                 # Temporary local folder for PDF processing (Git excluded)
+├── data/                     # Temporary local folder for PDF processing (Git excluded)
+├── vectorstore_faiss/        # Persisted FAISS vector index (Git excluded)
 ├── src/
+│   ├── __init__.py           # Package initializer
+│   ├── config.py             # Environment variables loading and validation
+│   ├── ingesta.py            # OCI Object Storage connection and PDF chunking
+│   └── motor_rag.py          # FAISS vector store and OCI GenAI RAG chain setup
+├── tests/
 │   ├── __init__.py
-│   ├── ingesta.py        # OCI Object Storage connection and document processing
-│   ├── motor_rag.py      # Vector store configuration and LLM chain setup
-│   └── config.py         # Environment variables loading and validation
-├── app.py                # User interface built with Streamlit
-├── .env.example          # Public environment variables template
-├── .gitignore            # Excluded files from version control
-├── requirements.txt      # Project dependencies
-└── README.md             # Main documentation
+│   └── test_rag_pipeline.py  # Automated pytest QA suite
+├── app.py                    # Bilingual Streamlit UI with FAQ buttons & OCI sync
+├── .env.example              # Public environment variables template
+├── .gitignore                # Security exclusions (.env, keys, data, vectorstore)
+├── requirements.txt          # Project dependencies
+└── README.md                 # Project documentation
 ```
 
 ---
 
 ## 🚀 Local Setup & Installation
 
-Follow these steps to clone the project and run it locally using Visual Studio Code:
+Follow these steps to clone the project and run it locally:
 
 ### 1. Clone the repository
 ```bash
@@ -71,38 +89,48 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
+
 ### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
+
 ### 4. Configure environment variables
-Copy the `.env.example` file, rename it to `.env`, and fill in the fields with your OCI credentials and your LLM provider keys:
+Copy `.env.example` to `.env` and fill in your OCI credentials and model endpoints:
 ```bash
 cp .env.example .env
 ```
 
-The `.env` file must include the following base structure:
-```text
-# OCI Configuration
+```ini
+# OCI Object Storage Configuration
 OCI_COMPARTMENT_ID=ocid1.compartment.oc1..xxxxxx
-OCI_BUCKET_NAME=your-hr-bucket
+OCI_BUCKET_NAME=nexushcm-documents
 OCI_NAMESPACE=your-oci-namespace
 OCI_CONFIG_PROFILE=DEFAULT
 
-# LLM Deployment Credentials
-# (Configure your OCI Generative AI, OpenAI, or other provider keys here)
-LLM_API_KEY=your_api_key_here
+# OCI Generative AI Configuration
+OCI_GENAI_ENDPOINT=https://oraclecloud.com
+OCI_LLM_MODEL_ID=cohere.command-a-03-2025
+OCI_EMBEDDING_MODEL_ID=cohere.embed-v4.0
 ```
 
-### 5. Run the application
-To launch the virtual assistant locally, run the following command in your terminal:
+### 5. Run automated tests (QA)
+```bash
+pytest -v -W ignore::DeprecationWarning
+```
+
+### 6. Run the application locally
 ```bash
 streamlit run app.py
 ```
-Open the provided address in your browser (usually `http://localhost:8501`).
+Open `http://localhost:8501` in your browser.
 
 ---
 
 ## 🔒 Security & Best Practices
-This repository follows strict security guidelines. Cloud access credentials, OCI private keys, `.env` files, and downloaded PDF documents are explicitly configured in the `.gitignore` file to prevent accidental leaks of confidential data into public repositories.
+
+This repository follows strict cloud security guidelines:
+* **Credential Isolation:** OCI API keys (`~/.oci/oci_api_key.pem`), `.env` files, downloaded PDFs, and local vector indexes are excluded via `.gitignore`.
+* **Encrypted Traffic:** Production deployment enforces HTTPS via Let's Encrypt TLS certificates and reverse proxying through Nginx.
+* **Service Resilience:** Managed as a background `systemd` daemon (`nexushcm.service`) with automatic restart policies.
