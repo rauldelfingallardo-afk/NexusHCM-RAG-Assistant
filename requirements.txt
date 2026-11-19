@@ -22,3 +22,6 @@ langchain-openai>=0.2.0
 # Vector Database & UI
 faiss-cpu>=1.7.4
 streamlit>=1.40.0
+
+# QA & Testing
+pytest
